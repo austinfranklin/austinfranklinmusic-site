@@ -287,8 +287,8 @@
         for (var k = 0; k < sym.tremoloCount; k++) {
           var yy = midY + (k - (sym.tremoloCount - 1) / 2) * 6;
           ctx.beginPath();
-          ctx.moveTo(stemX - 6, yy + 3.5);
-          ctx.lineTo(stemX + 6, yy - 3.5);
+          ctx.moveTo(stemX - 4, yy + 2.5);
+          ctx.lineTo(stemX + 4, yy - 2.5);
           ctx.stroke();
         }
       }
