@@ -155,7 +155,6 @@ header.site-header {
 }
 
 nav.primary-nav ul {
-  height: 15%;
   list-style: none;
   display: flex;
   flex-wrap: wrap;
@@ -436,7 +435,7 @@ textarea:focus-visible {
     padding: 0.85rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  .site-header { padding: 0.9rem 0; min-height: auto; }
+  .site-header { padding: 0.9rem 0; min-height: 15%; }
 }
 
 @media (max-width: 640px) {
