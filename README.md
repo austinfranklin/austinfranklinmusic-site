@@ -85,16 +85,25 @@ already shown above the form.
 
 ## The background effect
 
-Click-and-drag (or touch-drag on mobile) anywhere on the page and a faint
-grey staff-and-notes trail follows the cursor, fading out after about two
-seconds. It's a plain `<canvas>` behind all page content
-(`assets/js/main.js`, function `initSheetMusicBackground`), so it never
-blocks clicks or text selection. It automatically turns itself off for
-visitors with "reduce motion" enabled in their OS accessibility settings.
+Click-and-drag (or touch-drag on mobile) anywhere on the page and it
+scatters loose notation along the path \u2014 notes from whole down to 32nd,
+rests, occasional ties, dynamics markings (p, mf, ff, sfz...), and
+crescendo/diminuendo hairpins \u2014 all in faint grey, fading out after a
+couple of seconds. Every glyph is drawn upright (never rotated to match
+drag direction). It leans on real notation shapes but isn't trying to be
+strictly correct: ties connect notes regardless of duration, and there's
+a small chance any given note gets an extra "glitch" flag or a slightly
+overlong stem. It's a plain `<canvas>` behind all page content
+(`assets/js/main.js`, function `initNotationBackground`), so it never
+blocks clicks or text selection, and it automatically turns itself off
+for visitors with "reduce motion" enabled in their OS accessibility
+settings.
 
-To tweak it, the constants at the top of that function control the feel:
-`MAX_AGE` (how long a stroke lingers), `STAFF_SPACING` (gap between the 5
-lines), and `NOTE_EVERY` (how often a note glyph is dropped along the drag).
+To tweak it, the constants near the top of that function control the
+feel: `DURATION_WEIGHTS` (how often each note value appears), `MAX_AGE`
+(how long a glyph lingers), and `SPAWN_EVERY` (how densely glyphs appear
+along a drag). The odds of notes vs. rests vs. dynamics vs. hairpins, and
+the tie/glitch probabilities, are inline in the `spawnSymbol` function.
 
 ## Updating content
 

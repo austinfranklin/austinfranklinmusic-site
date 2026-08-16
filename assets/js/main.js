@@ -20,17 +20,24 @@
     });
   });
 
-  /* ---------- Drag-to-draw sheet music background ----------
-     Click-and-drag (or touch-drag) anywhere on the page draws a
-     faint, grey staff-and-notes trail that follows the cursor and
-     fades out after a couple of seconds. Purely decorative, sits
-     behind all page content, and never intercepts clicks. */
+  /* ---------- Drag-to-draw generative notation background ----------
+     Click-and-drag (or touch-drag) anywhere on the page scatters loose
+     notation along the path: notes from whole down to 32nd, rests,
+     the occasional tie, dynamics markings, and crescendo/diminuendo
+     hairpins. It leans on real notation shapes but doesn't try to be
+     a strict, correct score \u2014 durations, ties, and flourishes are
+     randomized and sometimes break the rules on purpose.
+
+     Every glyph is drawn upright (translate only, never rotate), so
+     nothing tilts or reorients based on drag direction. Purely
+     decorative, sits behind all page content, never intercepts
+     clicks, and turns itself off for reduced-motion users. */
 
   var reduceMotion =
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function initSheetMusicBackground() {
+  function initNotationBackground() {
     var canvas = document.getElementById("sheet-music-bg");
     if (!canvas || !canvas.getContext) return;
     var ctx = canvas.getContext("2d");
@@ -48,16 +55,32 @@
 
     if (reduceMotion) return; // no animated effect for reduced-motion users
 
-    var dragging = false;
-    var trail = []; // {x, y, t}
-    var notes = []; // {x, y, t, stemUp, tilt}
-    var lastPoint = null;
-    var distSinceNote = 0;
+    var DURATIONS = ["whole", "half", "quarter", "eighth", "16th", "32nd"];
+    var DURATION_WEIGHTS = [0.05, 0.12, 0.28, 0.28, 0.17, 0.10];
+    var DYNAMICS = ["pp", "p", "mp", "mf", "f", "ff", "sfz", "fp"];
+    var MAX_AGE = 2600; // ms a glyph stays visible
+    var SPAWN_EVERY = 42; // px of drag distance between glyphs
+    var INK = "12,13,14";
 
-    var MAX_AGE = 2200; // ms a stroke stays visible
-    var STAFF_SPACING = 4; // px between the 5 staff lines
-    var NOTE_EVERY = 46; // px of drag distance between notes
-    var INK = "10,10,10"; // rgb components for grey ink
+    function ink(a) {
+      return "rgba(" + INK + "," + a.toFixed(3) + ")";
+    }
+
+    function pickWeighted(items, weights) {
+      var r = Math.random();
+      var sum = 0;
+      for (var i = 0; i < items.length; i++) {
+        sum += weights[i];
+        if (r <= sum) return items[i];
+      }
+      return items[items.length - 1];
+    }
+
+    var dragging = false;
+    var lastPoint = null;
+    var distSinceSpawn = 0;
+    var symbols = []; // {type, x, y, t, ...}
+    var lastNote = null; // most recent note-type symbol, for tying
 
     function eventPoint(e) {
       if (e.touches && e.touches.length) {
@@ -66,31 +89,77 @@
       return { x: e.clientX, y: e.clientY };
     }
 
-    function addPoint(x, y) {
+    function spawnSymbol(x, y) {
       var now = performance.now();
+      var jx = x + (Math.random() - 0.5) * 8;
+      var jy = y + (Math.random() - 0.5) * 14;
+      var r = Math.random();
+
+      if (r < 0.6) {
+        var duration = pickWeighted(DURATIONS, DURATION_WEIGHTS);
+        var stemUp = Math.random() > 0.5;
+        var canTie =
+          lastNote && now - lastNote.t < 1100 && Math.random() < 0.24;
+        var glitch = Math.random() < 0.09;
+        var sym = {
+          type: "note",
+          duration: duration,
+          x: jx,
+          y: jy,
+          t: now,
+          stemUp: stemUp,
+          glitch: glitch,
+          tieFrom: canTie ? { x: lastNote.x, y: lastNote.y } : null,
+        };
+        symbols.push(sym);
+        lastNote = sym;
+      } else if (r < 0.8) {
+        var restDuration = pickWeighted(DURATIONS, DURATION_WEIGHTS);
+        symbols.push({
+          type: "rest",
+          duration: restDuration,
+          x: jx,
+          y: jy,
+          t: now,
+        });
+      } else if (r < 0.93) {
+        symbols.push({
+          type: "dynamic",
+          text: DYNAMICS[Math.floor(Math.random() * DYNAMICS.length)],
+          x: jx,
+          y: jy,
+          t: now,
+        });
+      } else {
+        symbols.push({
+          type: "hairpin",
+          crescendo: Math.random() > 0.5,
+          x: jx,
+          y: jy,
+          t: now,
+        });
+      }
+    }
+
+    function addPoint(x, y) {
       if (lastPoint) {
         var dx = x - lastPoint.x;
         var dy = y - lastPoint.y;
-        distSinceNote += Math.sqrt(dx * dx + dy * dy);
-        if (distSinceNote > NOTE_EVERY) {
-          notes.push({
-            x: x,
-            y: y,
-            t: now,
-            stemUp: Math.random() > 0.5,
-            tilt: (Math.random() - 0.5) * 0.3,
-          });
-          distSinceNote = 0;
+        distSinceSpawn += Math.sqrt(dx * dx + dy * dy);
+        if (distSinceSpawn > SPAWN_EVERY) {
+          spawnSymbol(x, y);
+          distSinceSpawn = 0;
         }
+      } else {
+        spawnSymbol(x, y);
       }
-      trail.push({ x: x, y: y, t: now });
       lastPoint = { x: x, y: y };
     }
 
     function startDrag(e) {
       dragging = true;
       lastPoint = null;
-      distSinceNote = 0;
+      distSinceSpawn = 0;
       var p = eventPoint(e);
       addPoint(p.x, p.y);
     }
@@ -110,69 +179,153 @@
     window.addEventListener("pointercancel", endDrag, { passive: true });
     window.addEventListener("pointerleave", endDrag, { passive: true });
 
-    function drawNote(n, alpha) {
-      ctx.save();
-      ctx.translate(n.x, n.y);
-      ctx.rotate(n.tilt);
-      var a = (alpha * 0.3).toFixed(3);
-      ctx.fillStyle = "rgba(" + INK + "," + a + ")";
-      ctx.strokeStyle = "rgba(" + INK + "," + a + ")";
-      ctx.lineWidth = 1.4;
+    /* ---------- Glyph drawing (all local coords, no rotation) ---------- */
+
+    var FLAG_COUNT = { whole: 0, half: 0, quarter: 0, eighth: 1, "16th": 2, "32nd": 3 };
+
+    function drawNote(sym, alpha) {
+      var size = 4.6;
+      var hollow = sym.duration === "whole" || sym.duration === "half";
+      ctx.fillStyle = ink(alpha);
+      ctx.strokeStyle = ink(alpha);
+      ctx.lineWidth = 1.3;
 
       ctx.beginPath();
-      ctx.ellipse(0, 0, 4.6, 3.3, -0.35, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.ellipse(0, 0, size, size * 0.72, 0, 0, Math.PI * 2);
+      if (hollow) ctx.stroke();
+      else ctx.fill();
 
-      var stemLen = 18;
+      if (sym.duration === "whole") return;
+
+      var stemLen = 19 + (sym.glitch ? 8 : 0);
+      var stemX = sym.stemUp ? size * 0.92 : -size * 0.92;
+      var stemYend = sym.stemUp ? -stemLen : stemLen;
       ctx.beginPath();
-      if (n.stemUp) {
-        ctx.moveTo(4, -1);
-        ctx.lineTo(4, -stemLen);
+      ctx.moveTo(stemX, 0);
+      ctx.lineTo(stemX, stemYend);
+      ctx.stroke();
+
+      var flags = FLAG_COUNT[sym.duration] || 0;
+      if (sym.glitch) flags += 1; // occasional rule-breaking extra flag
+      for (var i = 0; i < flags; i++) {
+        var fy = stemYend + (sym.stemUp ? i * 7 : -i * 7);
+        ctx.beginPath();
+        if (sym.stemUp) {
+          ctx.moveTo(stemX, fy);
+          ctx.bezierCurveTo(stemX + 8, fy + 4, stemX + 8, fy + 12, stemX + 1, fy + 14);
+        } else {
+          ctx.moveTo(stemX, fy);
+          ctx.bezierCurveTo(stemX - 8, fy - 4, stemX - 8, fy - 12, stemX - 1, fy - 14);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawRest(sym, alpha) {
+      ctx.fillStyle = ink(alpha);
+      ctx.strokeStyle = ink(alpha);
+      ctx.lineWidth = 1.5;
+
+      switch (sym.duration) {
+        case "whole":
+          ctx.fillRect(-5, -1, 10, 4);
+          break;
+        case "half":
+          ctx.fillRect(-5, -4, 10, 4);
+          break;
+        case "quarter":
+          ctx.beginPath();
+          ctx.moveTo(-1, -13);
+          ctx.bezierCurveTo(5, -9, -5, -5, 2, -1);
+          ctx.bezierCurveTo(-4, 3, 6, 7, -1, 11);
+          ctx.stroke();
+          break;
+        default:
+          var hooks = sym.duration === "eighth" ? 1 : sym.duration === "16th" ? 2 : 3;
+          ctx.beginPath();
+          ctx.moveTo(2, -13);
+          ctx.lineTo(-3, 13);
+          ctx.stroke();
+          for (var i = 0; i < hooks; i++) {
+            var hy = -11 + i * 7;
+            ctx.beginPath();
+            ctx.moveTo(2, hy);
+            ctx.bezierCurveTo(9, hy + 2, 9, hy + 7, 2, hy + 9);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.ellipse(2.5, -13, 2, 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+      }
+    }
+
+    function drawDynamic(sym, alpha) {
+      ctx.fillStyle = ink(Math.min(1, alpha * 1.15));
+      ctx.font = "italic 700 15px Georgia, 'Times New Roman', serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(sym.text, 0, 0);
+    }
+
+    function drawHairpin(sym, alpha) {
+      var w = 28;
+      var h = 9;
+      ctx.strokeStyle = ink(alpha);
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      if (sym.crescendo) {
+        ctx.moveTo(-w / 2, 0);
+        ctx.lineTo(w / 2, -h / 2);
+        ctx.moveTo(-w / 2, 0);
+        ctx.lineTo(w / 2, h / 2);
       } else {
-        ctx.moveTo(-4, 1);
-        ctx.lineTo(-4, stemLen);
+        ctx.moveTo(-w / 2, -h / 2);
+        ctx.lineTo(w / 2, 0);
+        ctx.moveTo(-w / 2, h / 2);
+        ctx.lineTo(w / 2, 0);
       }
       ctx.stroke();
-      ctx.restore();
+    }
+
+    function drawTie(from, to, alpha) {
+      ctx.strokeStyle = ink(alpha * 0.75);
+      ctx.lineWidth = 1.2;
+      var midX = (from.x + to.x) / 2;
+      var topY = Math.min(from.y, to.y) - 12;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y - 7);
+      ctx.quadraticCurveTo(midX, topY, to.x, to.y - 7);
+      ctx.stroke();
     }
 
     function frame() {
       var now = performance.now();
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-      trail = trail.filter(function (p) {
-        return now - p.t < MAX_AGE;
-      });
-      notes = notes.filter(function (n) {
-        return now - n.t < MAX_AGE;
+      symbols = symbols.filter(function (s) {
+        return now - s.t < MAX_AGE;
       });
 
-      for (var i = 1; i < trail.length; i++) {
-        var p0 = trail[i - 1];
-        var p1 = trail[i];
-        var age = now - p1.t;
-        if (age > MAX_AGE) continue;
-        var alpha = Math.max(0, 1 - age / MAX_AGE);
-        var dx = p1.x - p0.x;
-        var dy = p1.y - p0.y;
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        var nx = -dy / len;
-        var ny = dx / len;
-        ctx.strokeStyle = "rgba(" + INK + "," + (alpha * 0.16).toFixed(3) + ")";
-        ctx.lineWidth = 1;
-        for (var line = -2; line <= 2; line++) {
-          var off = line * STAFF_SPACING;
-          ctx.beginPath();
-          ctx.moveTo(p0.x + nx * off, p0.y + ny * off);
-          ctx.lineTo(p1.x + nx * off, p1.y + ny * off);
-          ctx.stroke();
+      // ties first, underneath the notes they connect
+      symbols.forEach(function (s) {
+        if (s.type === "note" && s.tieFrom) {
+          var age = now - s.t;
+          var alpha = Math.max(0, 1 - age / MAX_AGE) * 0.3;
+          if (alpha > 0) drawTie(s.tieFrom, s, alpha);
         }
-      }
+      });
 
-      notes.forEach(function (n) {
-        var age = now - n.t;
+      symbols.forEach(function (s) {
+        var age = now - s.t;
         var alpha = Math.max(0, 1 - age / MAX_AGE);
-        if (alpha > 0) drawNote(n, alpha);
+        if (alpha <= 0) return;
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        if (s.type === "note") drawNote(s, alpha * 0.32);
+        else if (s.type === "rest") drawRest(s, alpha * 0.3);
+        else if (s.type === "dynamic") drawDynamic(s, alpha * 0.3);
+        else if (s.type === "hairpin") drawHairpin(s, alpha * 0.26);
+        ctx.restore();
       });
 
       requestAnimationFrame(frame);
@@ -181,8 +334,8 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSheetMusicBackground);
+    document.addEventListener("DOMContentLoaded", initNotationBackground);
   } else {
-    initSheetMusicBackground();
+    initNotationBackground();
   }
 })();
