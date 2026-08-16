@@ -12,7 +12,7 @@ permalink: /scores/
 
 <p>Scores are free but donations are appreciated. <a href="{{ '/contact/' | relative_url }}">Contact</a> me if you want parts or electronic materials for performance.</p>
 
-<div class="staff-rule compact" role="presentation"></div>
+<hr class="rule compact">
 
 <div class="download-row"><span>The Theory of Motion &mdash; Full Score</span><a class="btn" href="https://austinfranklinmusic.com/wp-content/uploads/2024/08/The-Theory-of-Motion-Full-Score.pdf">Download</a></div>
 <div class="download-row"><span>The Clock and the Train &mdash; Full Score</span><a class="btn" href="https://austinfranklinmusic.com/wp-content/uploads/2023/08/The-Clock-and-the-Train-Full-Score.pdf">Download</a></div>

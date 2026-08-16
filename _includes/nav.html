@@ -1,8 +1,20 @@
 <header class="site-header">
-  <div class="wrap-wide">
-    <a class="brand" href="{{ '/' | relative_url }}">Austin Franklin</a>
+  <div class="wrap-wide header-inner">
+    <a class="brand" href="{{ '/' | relative_url }}">
+      <span class="logo-mark" aria-hidden="true">
+        <img src="{{ '/assets/images/logo.png' | relative_url }}" alt=""
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="logo-fallback" style="display:none;">AF</span>
+      </span>
+      <span class="brand-text">Austin Franklin</span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav-list" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+
     <nav class="primary-nav" aria-label="Primary">
-      <ul>
+      <ul id="primary-nav-list">
         <li><a href="{{ '/about/' | relative_url }}" {% if page.url == '/about/' %}class="active"{% endif %}>About</a></li>
         <li><a href="{{ '/research/' | relative_url }}" {% if page.url == '/research/' %}class="active"{% endif %}>Research</a></li>
         <li><a href="{{ '/software/' | relative_url }}" {% if page.url == '/software/' %}class="active"{% endif %}>Software</a></li>

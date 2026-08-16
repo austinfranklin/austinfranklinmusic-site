@@ -16,7 +16,7 @@ permalink: /contact/
 <p>Contact me regarding commission inquiries, purchase orders, software deliverables, research opportunities, or private lesson scheduling.</p>
 </div>
 
-<div class="staff-rule" role="presentation"></div>
+<hr class="rule">
 
 <p class="eyebrow">Send Me a Message</p>
 

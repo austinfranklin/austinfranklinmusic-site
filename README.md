@@ -83,6 +83,19 @@ sign up, grab your form endpoint, and drop it into
 (if you ever move hosting to Netlify) or a simple `mailto:` link, which is
 already shown above the form.
 
+## The background effect
+
+Click-and-drag (or touch-drag on mobile) anywhere on the page and a faint
+grey staff-and-notes trail follows the cursor, fading out after about two
+seconds. It's a plain `<canvas>` behind all page content
+(`assets/js/main.js`, function `initSheetMusicBackground`), so it never
+blocks clicks or text selection. It automatically turns itself off for
+visitors with "reduce motion" enabled in their OS accessibility settings.
+
+To tweak it, the constants at the top of that function control the feel:
+`MAX_AGE` (how long a stroke lingers), `STAFF_SPACING` (gap between the 5
+lines), and `NOTE_EVERY` (how often a note glyph is dropped along the drag).
+
 ## Updating content
 
 All page content lives in Markdown/HTML in each page's `index.md`/`index.html`.

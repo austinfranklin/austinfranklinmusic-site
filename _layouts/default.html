@@ -9,10 +9,12 @@
   <link rel="icon" href="data:,">
 </head>
 <body>
+  <canvas id="sheet-music-bg" aria-hidden="true"></canvas>
   {% include nav.html %}
   <main>
     {{ content }}
   </main>
   {% include footer.html %}
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
 </body>
 </html>

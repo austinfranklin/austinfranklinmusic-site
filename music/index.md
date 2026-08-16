@@ -68,7 +68,7 @@ permalink: /music/
 </ul>
 </div>
 
-<div class="staff-rule" role="presentation"></div>
+<hr class="rule">
 
 <h3 style="font-family:'IBM Plex Mono',monospace;text-transform:uppercase;font-size:0.78rem;letter-spacing:0.08em;color:var(--accent-teal);">Discography</h3>
 <p><a href="https://open.spotify.com/album/1ILzwXIXZc0diAv529SjC5">Listen on Spotify</a></p>

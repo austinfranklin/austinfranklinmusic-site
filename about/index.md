@@ -23,7 +23,7 @@ Austin has several pieces for percussion published through [C-Alan Publications]
 
 As a technologist and researcher, he has presented research at the Web Audio Conference (WAC) exploring the use of Web APIs as the basis for designing digital instruments, and at the New Interfaces for Musical Expression Conference (NIME) on simultaneous auditory and vibrotactile stimuli. His work developing novel real-time music information retrieval algorithms has been presented at the International Society for Music Information Retrieval (ISMIR) and the Australasian Computer Music Conference (ACMC). His most recent research and writing can be found on the [Research]({{ '/research/' | relative_url }}) page.
 
-<div class="staff-rule compact" role="presentation"></div>
+<hr class="rule compact">
 
 ### Documents
 
@@ -38,7 +38,7 @@ As a technologist and researcher, he has presented research at the Web Audio Con
 - [YouTube](https://www.youtube.com/@austinfranklin7740)
 - [Instagram](https://www.instagram.com/austinfranklinmusic/)
 
-<div class="staff-rule" role="presentation"></div>
+<hr class="rule">
 
 ## Press
 

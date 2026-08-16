@@ -14,7 +14,7 @@ names and they'll automatically show up on the site:
 | `auxtrument.png`                   | Software page      | \u201d |
 | `pnp-maxtools.png`                 | Software page      | \u201d |
 | `musical-game-of-life.gif`         | Software page      | \u201d |
-| `logo.png`                         | (optional) header  | Not currently wired up; add to `_includes/nav.html` if you want a logo mark instead of text |
+| `logo.png`                         | header (black bar)  | Wired up already \u2014 drop in a logo (ideally white/transparent, square-ish) and it replaces the "AF" monogram automatically |
 
 The Software page cards use an `onerror` fallback, so missing images show the
 filename instead of a broken-image icon \u2014 nothing will look broken while

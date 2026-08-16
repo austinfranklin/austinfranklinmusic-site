@@ -10,26 +10,36 @@
   --ink: #0a0a0a;
   --ink-soft: #5c6066;
   --accent: #1d4ed8;       /* primary blue */
-  --accent-teal: #1d4ed8;  /* alias kept for backwards compatibility across pages */
+  --accent-teal: #1d4ed8;  /* alias kept for backwards compatibility */
   --accent-soft: #3b6bf0;  /* hover / lighter blue */
   --line: rgba(10, 10, 10, 0.10);
   --line-strong: rgba(10, 10, 10, 0.26);
   --max: 760px;
   --max-wide: 920px;
+  --header-h: 64px;
 }
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 17px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
 }
 
 ::selection { background: var(--accent); color: var(--paper); }
@@ -60,62 +70,89 @@ h1, h2, h3, h4 {
   color: var(--accent);
 }
 
-/* ---------- Staff-line signature element ---------- */
-/* A five-line musical staff used as the site's structural divider,
-   standing in for a section break the way a rest or barline would. */
-.staff-rule {
-  width: 100%;
-  height: 34px;
+/* ---------- Simple section divider ---------- */
+hr.rule {
+  border: none;
+  border-top: 1px solid var(--line);
   margin: 3rem 0;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--line) 0px,
-    var(--line) 1px,
-    transparent 1px,
-    transparent 8px
-  );
-  background-size: 100% 32px;
-  background-repeat: no-repeat;
-  background-position: center;
-  position: relative;
 }
-.staff-rule::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
-  border-radius: 50%;
-  transform: translateY(-50%);
+hr.rule.compact { margin: 2rem 0; }
+
+/* ---------- Generative background canvas ---------- */
+#sheet-music-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
 }
-.staff-rule.compact { height: 20px; margin: 2rem 0; background-size: 100% 18px; }
-.staff-rule.compact::after { width: 6px; height: 6px; }
 
 /* ---------- Layout shell ---------- */
-.wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; }
-.wrap-wide { max-width: var(--max-wide); margin: 0 auto; padding: 0 1.5rem; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+.wrap-wide { max-width: var(--max-wide); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
 
-header.site-header {
-  border-bottom: 1px solid var(--line);
-  padding: 1.4rem 0;
+header.site-header,
+main,
+footer.site-footer {
+  position: relative;
+  z-index: 1;
 }
-.site-header .wrap-wide {
+
+/* ---------- Header ---------- */
+header.site-header {
+  background: var(--ink);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0;
+  min-height: var(--header-h);
+  display: flex;
+  align-items: center;
+}
+.site-header .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
 }
 .site-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--ink);
+  font-size: 1.05rem;
+  color: var(--paper);
   text-decoration: none;
   letter-spacing: -0.01em;
 }
-.site-header .brand:hover { color: var(--ink); }
+.site-header .brand:hover { color: var(--paper); }
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+.logo-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.02em;
+}
 
 nav.primary-nav ul {
   list-style: none;
@@ -125,33 +162,53 @@ nav.primary-nav ul {
   margin: 0;
   padding: 0;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 nav.primary-nav a {
-  color: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   padding-bottom: 2px;
 }
 nav.primary-nav a:hover,
 nav.primary-nav a.active {
-  color: var(--ink);
-  border-bottom-color: var(--accent);
+  color: var(--paper);
+  border-bottom-color: var(--accent-soft);
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 30px;
+  height: 24px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.nav-toggle span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--paper);
+  border-radius: 1px;
 }
 
 /* ---------- Hero (home page) ---------- */
 .hero {
-  padding: 4.5rem 0 2rem;
+  padding: clamp(2.5rem, 8vw, 4.5rem) 0 2rem;
 }
 .hero h1 {
-  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-size: clamp(2.1rem, 8vw, 4.2rem);
   max-width: 14ch;
 }
 .hero .tagline {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
@@ -159,19 +216,19 @@ nav.primary-nav a.active {
 }
 .hero p.lede {
   max-width: 60ch;
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.4vw, 1.1rem);
   color: var(--ink-soft);
 }
 
 /* ---------- Content sections ---------- */
 main { padding-bottom: 5rem; }
-.page-title { padding: 3.5rem 0 0; }
-.page-title h1 { font-size: clamp(2rem, 5vw, 2.8rem); }
+.page-title { padding: clamp(2rem, 7vw, 3.5rem) 0 0; }
+.page-title h1 { font-size: clamp(1.8rem, 6vw, 2.8rem); }
 
 section + section { margin-top: 2.5rem; }
 
-h2 { font-size: 1.45rem; margin-top: 2.6rem; }
-h3 { font-size: 1.1rem; margin-top: 1.8rem; color: var(--ink); }
+h2 { font-size: clamp(1.25rem, 4vw, 1.45rem); margin-top: 2.6rem; }
+h3 { font-size: clamp(1.02rem, 3vw, 1.1rem); margin-top: 1.8rem; color: var(--ink); }
 h4 { font-family: "Inter", sans-serif; font-weight: 600; font-size: 1.02rem; margin-top: 1.4rem; }
 
 ul, ol { padding-left: 1.3rem; }
@@ -183,7 +240,7 @@ p { margin: 0 0 1.1rem; }
 .work-group h3 {
   font-family: "IBM Plex Mono", monospace;
   text-transform: uppercase;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   letter-spacing: 0.08em;
   color: var(--accent);
   margin-top: 2.4rem;
@@ -194,18 +251,18 @@ p { margin: 0 0 1.1rem; }
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 .work-group li .instrumentation {
   color: var(--ink-soft);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 /* ---------- Featured works grid (home) ---------- */
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -215,15 +272,15 @@ p { margin: 0 0 1.1rem; }
   background: var(--paper);
   padding: 1.1rem 1rem;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   letter-spacing: 0.02em;
 }
 
 /* ---------- Software / project cards ---------- */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 1.25rem;
   margin-top: 1.5rem;
 }
 .card {
@@ -238,7 +295,7 @@ p { margin: 0 0 1.1rem; }
   align-items: center;
   justify-content: center;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
@@ -281,7 +338,7 @@ p { margin: 0 0 1.1rem; }
 }
 .download-row .btn {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--line-strong);
@@ -296,8 +353,9 @@ p { margin: 0 0 1.1rem; }
 .contact-block a.email {
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: clamp(1.05rem, 4vw, 1.25rem);
   color: var(--accent);
+  word-break: break-word;
 }
 form.contact-form { margin-top: 2rem; }
 form.contact-form label {
@@ -335,6 +393,7 @@ form.contact-form button {
   border: none;
   padding: 0.75rem 1.6rem;
   cursor: pointer;
+  width: 100%;
 }
 form.contact-form button:hover { background: var(--accent); }
 
@@ -344,7 +403,7 @@ form.contact-form button:hover { background: var(--accent); }
   border: 1px dashed var(--line-strong);
   color: var(--ink-soft);
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.04em;
   display: flex;
   align-items: center;
@@ -359,7 +418,7 @@ footer.site-footer {
   border-top: 1px solid var(--line);
   padding: 2.2rem 0;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   color: var(--ink-soft);
   letter-spacing: 0.02em;
 }
@@ -372,7 +431,44 @@ footer.site-footer .wrap-wide {
 footer.site-footer a { color: var(--ink-soft); }
 footer.site-footer a:hover { color: var(--accent); }
 
+/* ---------- Focus visibility ---------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 680px) {
+  .nav-toggle { display: flex; }
+  nav.primary-nav { width: 100%; }
+  nav.primary-nav ul {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    padding: 0.25rem 0 0.75rem;
+  }
+  nav.primary-nav ul.open { display: flex; }
+  nav.primary-nav li { width: 100%; }
+  nav.primary-nav a {
+    display: block;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .site-header { padding: 0.9rem 0; min-height: auto; }
+}
+
 @media (max-width: 640px) {
   body { font-size: 16px; }
-  .site-header .wrap-wide { flex-direction: column; align-items: flex-start; }
+  .work-group li { flex-direction: column; gap: 0.15rem; }
+  .download-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .download-row .btn { width: 100%; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  .wrap, .wrap-wide { padding: 0 1.1rem; }
+  .featured-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }
