@@ -155,6 +155,7 @@ header.site-header {
 }
 
 nav.primary-nav ul {
+  height: 15%;
   list-style: none;
   display: flex;
   flex-wrap: wrap;
