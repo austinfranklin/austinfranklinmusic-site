@@ -82,8 +82,3 @@ sign up, grab your form endpoint, and drop it into
 `contact/index.md` in place of `YOUR_FORM_ID`. Alternatives: Netlify Forms
 (if you ever move hosting to Netlify) or a simple `mailto:` link, which is
 already shown above the form.
-
-## Updating content
-
-All page content lives in Markdown/HTML in each page's `index.md`/`index.html`.
-Edit directly, commit, and push \u2014 GitHub Pages rebuilds automatically.
