@@ -1,0 +1,27 @@
+title: Austin Franklin
+tagline: "Composer \u00B7 Programmer \u00B7 Researcher \u00B7 Educator"
+description: "Composer, sound artist, developer, and researcher. Music, software, research, and scores."
+url: "https://austinfranklinmusic.com"
+baseurl: ""
+
+email: austinalexanderfranklin12@gmail.com
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock

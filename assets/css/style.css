@@ -1,0 +1,368 @@
+/* -----------------------------------------------------------
+   Austin Franklin \u2014 manuscript / engraved-plate design system
+   ----------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --paper: #efece4;
+  --paper-raised: #e6e2d7;
+  --ink: #1f2421;
+  --ink-soft: #4a5049;
+  --accent: #9c7a3c;      /* brass / gold-leaf */
+  --accent-teal: #2b4c4a; /* engraved ink-teal */
+  --line: rgba(31, 36, 33, 0.16);
+  --line-strong: rgba(31, 36, 33, 0.32);
+  --max: 760px;
+  --max-wide: 920px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent-teal); color: var(--paper); }
+
+a {
+  color: var(--accent-teal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--accent); }
+
+img { max-width: 100%; display: block; }
+
+h1, h2, h3, h4 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5em;
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ---------- Staff-line signature element ---------- */
+/* A five-line musical staff used as the site's structural divider,
+   standing in for a section break the way a rest or barline would. */
+.staff-rule {
+  width: 100%;
+  height: 34px;
+  margin: 3rem 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--line) 0px,
+    var(--line) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+  background-size: 100% 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+.staff-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.staff-rule.compact { height: 20px; margin: 2rem 0; background-size: 100% 18px; }
+.staff-rule.compact::after { width: 6px; height: 6px; }
+
+/* ---------- Layout shell ---------- */
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem; }
+.wrap-wide { max-width: var(--max-wide); margin: 0 auto; padding: 0 1.5rem; }
+
+header.site-header {
+  border-bottom: 1px solid var(--line);
+  padding: 1.4rem 0;
+}
+.site-header .wrap-wide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.site-header .brand {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.15rem;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.site-header .brand:hover { color: var(--ink); }
+
+nav.primary-nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin: 0;
+  padding: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+nav.primary-nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+nav.primary-nav a:hover,
+nav.primary-nav a.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- Hero (home page) ---------- */
+.hero {
+  padding: 4.5rem 0 2rem;
+}
+.hero h1 {
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  max-width: 14ch;
+}
+.hero .tagline {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-teal);
+  margin-bottom: 1.4rem;
+}
+.hero p.lede {
+  max-width: 60ch;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- Content sections ---------- */
+main { padding-bottom: 5rem; }
+.page-title { padding: 3.5rem 0 0; }
+.page-title h1 { font-size: clamp(2rem, 5vw, 2.8rem); }
+
+section + section { margin-top: 2.5rem; }
+
+h2 { font-size: 1.5rem; margin-top: 2.6rem; }
+h3 { font-size: 1.15rem; margin-top: 1.8rem; color: var(--ink); }
+h4 { font-family: "Source Serif 4", serif; font-weight: 600; font-size: 1.05rem; margin-top: 1.4rem; }
+
+ul, ol { padding-left: 1.3rem; }
+li { margin-bottom: 0.4rem; }
+
+p { margin: 0 0 1.1rem; }
+
+/* ---------- Works list (Music page etc.) ---------- */
+.work-group h3 {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--accent-teal);
+  margin-top: 2.4rem;
+}
+.work-group ul { list-style: none; padding-left: 0; }
+.work-group li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.work-group li .instrumentation {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+/* ---------- Featured works grid (home) ---------- */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin: 1rem 0;
+}
+.featured-grid .tile {
+  background: var(--paper-raised);
+  padding: 1.1rem 1rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Software / project cards ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.card {
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+.card .thumb {
+  aspect-ratio: 16 / 10;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+.card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.card .card-body { padding: 1rem 1.1rem 1.2rem; }
+.card h3 { margin-top: 0; font-size: 1.05rem; }
+
+/* ---------- Research entries ---------- */
+.paper {
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.paper:first-of-type { border-top: 1px solid var(--line); }
+.paper h3 { margin-top: 0; }
+.paper .status {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.paper p { color: var(--ink-soft); }
+
+/* ---------- Press quotes ---------- */
+.press-item { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+.press-item cite { font-style: normal; color: var(--ink-soft); }
+
+/* ---------- Scores / downloads ---------- */
+.download-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.download-row .btn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--line-strong);
+  padding: 0.35rem 0.8rem;
+  text-decoration: none;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.download-row .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- Contact ---------- */
+.contact-block a.email {
+  font-family: "Fraunces", serif;
+  font-size: 1.3rem;
+}
+form.contact-form { margin-top: 2rem; }
+form.contact-form label {
+  display: block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  color: var(--ink-soft);
+}
+form.contact-form input,
+form.contact-form textarea {
+  width: 100%;
+  font-family: "Source Serif 4", serif;
+  font-size: 1rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line-strong);
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 1.2rem;
+  color: var(--ink);
+}
+form.contact-form button {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 0.75rem 1.6rem;
+  cursor: pointer;
+}
+form.contact-form button:hover { background: var(--accent-teal); }
+
+/* ---------- Image placeholder helper ---------- */
+.img-placeholder {
+  background: var(--paper-raised);
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  aspect-ratio: 16 / 10;
+}
+
+/* ---------- Footer ---------- */
+footer.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 2.2rem 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+footer.site-footer .wrap-wide {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+footer.site-footer a { color: var(--ink-soft); }
+
+@media (max-width: 640px) {
+  body { font-size: 16.5px; }
+  .site-header .wrap-wide { flex-direction: column; align-items: flex-start; }
+}
