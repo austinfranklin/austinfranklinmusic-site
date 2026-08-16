@@ -85,15 +85,22 @@ already shown above the form.
 
 ## The background effect
 
-Click-and-drag (or touch-drag on mobile) anywhere on the page and it
-scatters loose notation along the path \u2014 notes from whole down to 32nd,
-rests, occasional ties, dynamics markings (p, mf, ff, sfz...), and
-crescendo/diminuendo hairpins \u2014 all in faint grey, fading out after a
-couple of seconds. Every glyph is drawn upright (never rotated to match
-drag direction). It leans on real notation shapes but isn't trying to be
-strictly correct: ties connect notes regardless of duration, and there's
-a small chance any given note gets an extra "glitch" flag or a slightly
-overlong stem. It's a plain `<canvas>` behind all page content
+Notation trails your mouse whenever it moves anywhere on the page \u2014
+no click or drag required, just hover. It scatters notes (whole down to
+32nd), rests, dynamics markings (p, mf, ff, sfz...), and crescendo/
+diminuendo hairpins, all in faint grey, fading out after a few seconds.
+
+A run of 3 or more consecutive notes has a 25% chance of getting a slur
+drawn across it. Individual notes each independently roll a low chance
+of carrying an articulation: an accent, a marcato caret (only on eighth
+notes and shorter), tremolo slashes through the stem, a trill marking,
+or a hollow diamond "harmonic" notehead in place of the normal one.
+There's also a small chance any note gets a rule-breaking "glitch" \u2014
+an extra flag that doesn't belong to its duration, or an overlong stem.
+
+Every glyph is drawn upright (translate + uniform scale only, `ctx`
+is never rotated), so nothing tilts or reorients based on mouse
+direction. It's a plain `<canvas>` behind all page content
 (`assets/js/main.js`, function `initNotationBackground`), so it never
 blocks clicks or text selection, and it automatically turns itself off
 for visitors with "reduce motion" enabled in their OS accessibility
@@ -101,9 +108,12 @@ settings.
 
 To tweak it, the constants near the top of that function control the
 feel: `DURATION_WEIGHTS` (how often each note value appears), `MAX_AGE`
-(how long a glyph lingers), and `SPAWN_EVERY` (how densely glyphs appear
-along a drag). The odds of notes vs. rests vs. dynamics vs. hairpins, and
-the tie/glitch probabilities, are inline in the `spawnSymbol` function.
+(how long a glyph lingers), `SPAWN_EVERY` (how far apart glyphs appear
+along the mouse's path), and `GLYPH_SCALE` (overall size). The odds of
+notes vs. rests vs. dynamics vs. hairpins are inline in `spawnSymbol`,
+as are each articulation's individual probability (currently: harmonic
+15%, accent 20%, marcato 22%, tremolo 15%, trill 12%, slur 25% per
+qualifying run, tie 24%, glitch 9%).
 
 ## Updating content
 
