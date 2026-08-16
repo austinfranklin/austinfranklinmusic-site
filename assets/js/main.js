@@ -65,9 +65,9 @@
     var SHORT_DURATIONS = { eighth: true, "16th": true, "32nd": true };
     var FLAG_COUNT = { whole: 0, half: 0, quarter: 0, eighth: 1, "16th": 2, "32nd": 3 };
 
-    var MAX_AGE = 2900; // ms a glyph stays visible
-    var SPAWN_EVERY = 70; // px of pointer travel between glyphs (spaced out)
-    var GLYPH_SCALE = 1.5; // overall glyph size multiplier (larger)
+    var MAX_AGE = 2500; // ms a glyph stays visible
+    var SPAWN_EVERY = 150; // px of pointer travel between glyphs (spaced out)
+    var GLYPH_SCALE = 1.75; // overall glyph size multiplier (larger)
     var INK = "12,13,14";
 
     function ink(a) {
