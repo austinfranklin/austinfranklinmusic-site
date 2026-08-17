@@ -16,7 +16,7 @@
   --line-strong: rgba(10, 10, 10, 0.26);
   --max: 760px;
   --max-wide: 920px;
-  --header-h: 15%;
+  --header-h: 50%;
 }
 
 * { box-sizing: border-box; }
