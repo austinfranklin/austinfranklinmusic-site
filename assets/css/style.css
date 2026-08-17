@@ -326,6 +326,29 @@ p { margin: 0 0 1.1rem; }
 .press-item { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
 .press-item cite { font-style: normal; color: var(--ink-soft); }
 
+/* ---------- Scores / downloads ---------- */
+.download-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.download-row .btn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--line-strong);
+  padding: 0.35rem 0.8rem;
+  text-decoration: none;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.download-row .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--paper-raised); }
+
 /* ---------- Contact ---------- */
 .contact-block a.email {
   font-family: "Space Grotesk", sans-serif;
@@ -435,7 +458,7 @@ textarea:focus-visible {
     padding: 0.85rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  .site-header { padding: 0.9rem 0; min-height: 15%; }
+  .site-header { padding: 0.9rem 0; min-height: auto; }
 }
 
 @media (max-width: 640px) {

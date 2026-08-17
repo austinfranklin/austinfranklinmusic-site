@@ -86,17 +86,26 @@ already shown above the form.
 ## The background effect
 
 Notation trails your mouse whenever it moves anywhere on the page \u2014
-no click or drag required, just hover. It scatters notes (whole down to
-32nd), rests, dynamics markings (p, mf, ff, sfz...), and crescendo/
-diminuendo hairpins, all in faint grey, fading out after a few seconds.
+no click or drag required, just hover. It's a sparse, faint-grey
+scatter of notes (whole down to 32nd), rests, dynamics markings, and
+crescendo/diminuendo hairpins, fading out after a few seconds.
 
-A run of 3 or more consecutive notes has a 25% chance of getting a slur
-drawn across it. Individual notes each independently roll a low chance
-of carrying an articulation: an accent, a marcato caret (only on eighth
-notes and shorter), tremolo slashes through the stem, a trill marking,
-or a hollow diamond "harmonic" notehead in place of the normal one.
-There's also a small chance any note gets a rule-breaking "glitch" \u2014
-an extra flag that doesn't belong to its duration, or an overlong stem.
+Notes and rests loosely align to an implied baseline that tracks the
+mouse's vertical position \u2014 a bit of "line spacing" for the notation
+without drawing an actual staff. Dynamics and hairpins always sit a
+fixed distance below that baseline, the way they would under a real
+staff.
+
+A run of 3 or more consecutive notes has a 25% chance of getting a
+slur drawn across it. Individual notes each independently roll a low
+chance of carrying an articulation \u2014 accent, marcato caret (only on
+eighth notes and shorter), tremolo slashes through the stem, a trill,
+or a hollow diamond "harmonic" notehead. Articulations are placed on
+the side opposite the stem (below the notehead if the stem points up,
+above it if the stem points down), so they never collide with the
+stem or flags. Ties only connect notes of the same duration. There's
+no intentional rule-breaking anymore \u2014 durations, flags, and
+placement all follow conventional notation.
 
 Every glyph is drawn upright (translate + uniform scale only, `ctx`
 is never rotated), so nothing tilts or reorients based on mouse
@@ -108,12 +117,14 @@ settings.
 
 To tweak it, the constants near the top of that function control the
 feel: `DURATION_WEIGHTS` (how often each note value appears), `MAX_AGE`
-(how long a glyph lingers), `SPAWN_EVERY` (how far apart glyphs appear
-along the mouse's path), and `GLYPH_SCALE` (overall size). The odds of
-notes vs. rests vs. dynamics vs. hairpins are inline in `spawnSymbol`,
-as are each articulation's individual probability (currently: harmonic
-15%, accent 20%, marcato 22%, tremolo 15%, trill 12%, slur 25% per
-qualifying run, tie 24%, glitch 9%).
+(how long a glyph lingers), `SPAWN_EVERY` + `SPAWN_CHANCE` (how far
+apart glyphs appear and how often a spawn opportunity is actually
+used \u2014 together these control frequency and spacing), `GLYPH_SCALE`
+(overall size), and `BELOW_OFFSET` (how far under the baseline
+dynamics/hairpins sit). The odds of notes vs. rests vs. dynamics vs.
+hairpins are inline in `spawnSymbol`, as are each articulation's
+individual probability (currently: harmonic 15%, accent 20%, marcato
+22%, tremolo 15%, trill 12%, slur 25% per qualifying run, tie 24%).
 
 ## Updating content
 

@@ -22,20 +22,26 @@
 
   /* ---------- Generative notation background ----------
      Notation trails the mouse whenever it moves \u2014 no click or drag
-     required, just hover. It's a loose scatter of notes (whole down to
-     32nd), rests, dynamics, and crescendo/diminuendo hairpins, all
-     faint grey and fading out after a few seconds.
+     required, just hover. It's a sparse, faint-grey scatter of notes
+     (whole down to 32nd), rests, dynamics, and crescendo/diminuendo
+     hairpins, following conventional notation rules cleanly (no
+     intentional rule-breaking).
 
-     Runs of 3+ consecutive notes have a 25% chance of getting a slur
-     drawn across them. Individual notes have an independent, low
-     chance of carrying an articulation: accent, marcato (the caret
-     mark, reserved for shorter note values), tremolo slashes, a trill,
-     or a hollow diamond "harmonic" notehead.
+     Notes and rests loosely align to an implied baseline that tracks
+     the mouse's vertical position, giving the scatter a sense of
+     "line spacing" without drawing an actual staff. Dynamics and
+     hairpins always sit below that baseline, the way they would sit
+     below a real staff. Runs of 3+ consecutive notes have a 25%
+     chance of getting a slur. Individual notes each have a low,
+     independent chance of an articulation \u2014 accent, marcato caret
+     (shorter notes only), tremolo, trill, or a hollow diamond
+     "harmonic" notehead \u2014 placed on the side opposite the stem so it
+     never collides with it.
 
      Every glyph is drawn upright (translate + uniform scale only,
-     never rotate), so nothing tilts or reorients with mouse direction.
-     Purely decorative, sits behind all page content, never intercepts
-     clicks, and turns itself off for reduced-motion users. */
+     never rotated), so nothing tilts or reorients with mouse
+     direction. Purely decorative, sits behind all page content, never
+     intercepts clicks, and turns itself off for reduced-motion users. */
 
   var reduceMotion =
     window.matchMedia &&
@@ -65,9 +71,11 @@
     var SHORT_DURATIONS = { eighth: true, "16th": true, "32nd": true };
     var FLAG_COUNT = { whole: 0, half: 0, quarter: 0, eighth: 1, "16th": 2, "32nd": 3 };
 
-    var MAX_AGE = 5000; // ms a glyph stays visible
-    var SPAWN_EVERY = 200; // px of pointer travel between glyphs (spaced out)
-    var GLYPH_SCALE = 1.75; // overall glyph size multiplier (larger)
+    var MAX_AGE = 3400; // ms a glyph stays visible
+    var SPAWN_EVERY = 140; // px of pointer travel between spawn opportunities
+    var SPAWN_CHANCE = 0.55; // of those opportunities, how many actually spawn (less frequent)
+    var GLYPH_SCALE = 1.7; // overall glyph size (a little bigger)
+    var BELOW_OFFSET = 34; // how far below the baseline dynamics/hairpins sit
     var INK = "12,13,14";
 
     function ink(a) {
@@ -105,17 +113,20 @@
 
     function spawnSymbol(x, y) {
       var now = performance.now();
-      var jx = x + (Math.random() - 0.5) * 14;
-      var jy = y + (Math.random() - 0.5) * 22;
       var r = Math.random();
 
       if (r < 0.58) {
+        // notes and rests hug an implied baseline \u2014 gentle jitter only
+        var jx = x + (Math.random() - 0.5) * 16;
+        var jy = y + (Math.random() - 0.5) * 12;
+
         var duration = pickWeighted(DURATIONS, DURATION_WEIGHTS);
         var stemUp = Math.random() > 0.5;
         var canTie =
-          lastNote && now - lastNote.t < 1200 && Math.random() < 0.24;
-        var glitch = Math.random() < 0.09;
-        var tremolo = duration !== "whole" && Math.random() < 0.15;
+          lastNote &&
+          lastNote.duration === duration &&
+          now - lastNote.t < 1200 &&
+          Math.random() < 0.24;
 
         var sym = {
           type: "note",
@@ -124,15 +135,14 @@
           y: jy,
           t: now,
           stemUp: stemUp,
-          glitch: glitch,
           tieFrom: canTie ? { x: lastNote.x, y: lastNote.y } : null,
           harmonic: Math.random() < 0.15,
           accent: Math.random() < 0.2,
           marcato: !!SHORT_DURATIONS[duration] && Math.random() < 0.22,
-          tremolo: tremolo,
-          tremoloCount: tremolo ? 1 + Math.floor(Math.random() * 3) : 0,
+          tremolo: duration !== "whole" && Math.random() < 0.15,
           trill: Math.random() < 0.12,
         };
+        sym.tremoloCount = sym.tremolo ? 1 + Math.floor(Math.random() * 3) : 0;
         symbols.push(sym);
         lastNote = sym;
 
@@ -151,30 +161,37 @@
         }
       } else if (r < 0.78) {
         resetRun();
+        var jrx = x + (Math.random() - 0.5) * 16;
+        var jry = y + (Math.random() - 0.5) * 12;
         var restDuration = pickWeighted(DURATIONS, DURATION_WEIGHTS);
         symbols.push({
           type: "rest",
           duration: restDuration,
-          x: jx,
-          y: jy,
+          x: jrx,
+          y: jry,
           t: now,
         });
       } else if (r < 0.92) {
         resetRun();
+        // dynamics sit below the baseline, the way they do under a real staff
+        var jdx = x + (Math.random() - 0.5) * 16;
+        var jdy = y + BELOW_OFFSET + (Math.random() - 0.5) * 8;
         symbols.push({
           type: "dynamic",
           text: DYNAMICS[Math.floor(Math.random() * DYNAMICS.length)],
-          x: jx,
-          y: jy,
+          x: jdx,
+          y: jdy,
           t: now,
         });
       } else {
         resetRun();
+        var jhx = x + (Math.random() - 0.5) * 16;
+        var jhy = y + BELOW_OFFSET + (Math.random() - 0.5) * 8;
         symbols.push({
           type: "hairpin",
           crescendo: Math.random() > 0.5,
-          x: jx,
-          y: jy,
+          x: jhx,
+          y: jhy,
           t: now,
         });
       }
@@ -186,8 +203,8 @@
         var dy = y - lastPoint.y;
         distSinceSpawn += Math.sqrt(dx * dx + dy * dy);
         if (distSinceSpawn > SPAWN_EVERY) {
-          spawnSymbol(x, y);
           distSinceSpawn = 0;
+          if (Math.random() < SPAWN_CHANCE) spawnSymbol(x, y);
         }
       } else {
         spawnSymbol(x, y);
@@ -239,7 +256,7 @@
       var stemYend = 0;
 
       if (hasStem) {
-        var stemLen = 19 + (sym.glitch ? 7 : 0);
+        var stemLen = 19;
         stemX = sym.stemUp ? size * 0.92 : -size * 0.92;
         stemYend = sym.stemUp ? -stemLen : stemLen;
         ctx.beginPath();
@@ -248,7 +265,6 @@
         ctx.stroke();
 
         var flags = FLAG_COUNT[sym.duration] || 0;
-        if (sym.glitch) flags += 1; // occasional rule-breaking extra flag
         for (var i = 0; i < flags; i++) {
           var fy = stemYend + (sym.stemUp ? i * 7 : -i * 7);
           ctx.beginPath();
@@ -263,22 +279,28 @@
         }
       }
 
-      /* ---- Articulations ---- */
+      /* ---- Articulations: placed opposite the stem so they never collide with it.
+         side = 1 means below the notehead, -1 means above. Whole notes (no stem)
+         default to above, matching common practice. ---- */
+      var side = hasStem ? (sym.stemUp ? 1 : -1) : -1;
 
       if (sym.accent) {
-        var ax = -size - 9;
+        var ay = side * (size + 8);
+        var farY = ay + side * 6;
         ctx.beginPath();
-        ctx.moveTo(ax, -4);
-        ctx.lineTo(ax + 7, 0);
-        ctx.lineTo(ax, 4);
+        ctx.moveTo(-6, farY);
+        ctx.lineTo(0, ay);
+        ctx.lineTo(6, farY);
         ctx.stroke();
       }
 
       if (sym.marcato) {
+        var my = side * (size + 6);
+        var apexY = my + side * 7;
         ctx.beginPath();
-        ctx.moveTo(-4, -size - 6);
-        ctx.lineTo(0, -size - 13);
-        ctx.lineTo(4, -size - 6);
+        ctx.moveTo(-4, my);
+        ctx.lineTo(0, apexY);
+        ctx.lineTo(4, my);
         ctx.stroke();
       }
 
@@ -287,21 +309,22 @@
         for (var k = 0; k < sym.tremoloCount; k++) {
           var yy = midY + (k - (sym.tremoloCount - 1) / 2) * 6;
           ctx.beginPath();
-          ctx.moveTo(stemX - 4, yy + 2.5);
-          ctx.lineTo(stemX + 4, yy - 2.5);
+          ctx.moveTo(stemX - 6, yy + 3.5);
+          ctx.lineTo(stemX + 6, yy - 3.5);
           ctx.stroke();
         }
       }
 
       if (sym.trill) {
+        var ty = side * (size + 15);
         ctx.font = "italic 700 12px Georgia, 'Times New Roman', serif";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-        ctx.fillText("tr", -5, -size - 15);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("tr", -8, ty);
         ctx.beginPath();
-        ctx.moveTo(9, -size - 18);
-        ctx.bezierCurveTo(13, -size - 23, 17, -size - 13, 21, -size - 18);
-        ctx.bezierCurveTo(25, -size - 23, 29, -size - 13, 33, -size - 18);
+        ctx.moveTo(2, ty);
+        ctx.bezierCurveTo(6, ty - side * 5, 10, ty + side * 5, 14, ty);
+        ctx.bezierCurveTo(18, ty - side * 5, 22, ty + side * 5, 26, ty);
         ctx.lineWidth = 1;
         ctx.stroke();
       }
@@ -346,7 +369,7 @@
     }
 
     function drawDynamic(sym, alpha) {
-      ctx.fillStyle = ink(Math.min(1, alpha * 1.15));
+      ctx.fillStyle = ink(Math.min(1, alpha * 1.1));
       ctx.font = "italic 700 15px Georgia, 'Times New Roman', serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -411,8 +434,8 @@
         var age = now - s.t;
         var alpha = Math.max(0, 1 - age / MAX_AGE);
         if (alpha <= 0) return;
-        if (s.type === "note" && s.tieFrom) drawTie(s.tieFrom, s, alpha * 0.3);
-        else if (s.type === "slur") drawSlur(s.points, alpha * 0.28);
+        if (s.type === "note" && s.tieFrom) drawTie(s.tieFrom, s, alpha * 0.22);
+        else if (s.type === "slur") drawSlur(s.points, alpha * 0.2);
       });
 
       symbols.forEach(function (s) {
@@ -423,10 +446,10 @@
         ctx.save();
         ctx.translate(s.x, s.y);
         ctx.scale(GLYPH_SCALE, GLYPH_SCALE);
-        if (s.type === "note") drawNote(s, alpha * 0.32);
-        else if (s.type === "rest") drawRest(s, alpha * 0.3);
-        else if (s.type === "dynamic") drawDynamic(s, alpha * 0.3);
-        else if (s.type === "hairpin") drawHairpin(s, alpha * 0.26);
+        if (s.type === "note") drawNote(s, alpha * 0.24);
+        else if (s.type === "rest") drawRest(s, alpha * 0.22);
+        else if (s.type === "dynamic") drawDynamic(s, alpha * 0.22);
+        else if (s.type === "hairpin") drawHairpin(s, alpha * 0.19);
         ctx.restore();
       });
 
