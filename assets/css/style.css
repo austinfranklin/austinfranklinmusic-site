@@ -16,7 +16,7 @@
   --line-strong: rgba(10, 10, 10, 0.26);
   --max: 760px;
   --max-wide: 920px;
-  --header-h: 50%;
+  --header-h: 120px;
 }
 
 * { box-sizing: border-box; }
@@ -119,6 +119,7 @@ header.site-header {
 }
 .site-header .brand {
   display: flex;
+  height: 80%;
   align-items: center;
   gap: 0.65rem;
   font-family: "Space Grotesk", sans-serif;
