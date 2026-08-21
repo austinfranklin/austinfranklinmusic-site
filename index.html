@@ -8,31 +8,69 @@ title: Home
   <p class="lede">Austin Franklin (b. 1995) is an internationally recognized composer, sound artist, developer, and researcher, currently working at M&auml;lardalens University in V&auml;ster&aring;s and The Royal College of Music in Stockholm.</p>
 </section>
 
-<div class="wrap"><hr class="rule"></div>
+<div class="wrap">
+  <hr class="rule">
+</div>
 
 <section class="wrap">
   <p class="eyebrow">Selected Works</p>
-  <div class="wall-grid">
-    {% for piece in site.music limit:10 %}
-    <a class="wall-tile" href="{{ piece.url | relative_url }}">
-      {% if piece.image %}<img src="{{ '/assets/images/works/' | append: piece.image | relative_url }}" alt="" onerror="this.style.display='none';">{% endif %}
-      <span class="overlay"><span>{{ piece.title }}</span></span>
-    </a>
-    {% endfor %}
+  <div class="featured-grid">
+    <div class="tile">Lanterns \u2014 String Quartet No. 1</div>
+    <div class="tile">Bloom</div>
+    <div class="tile">Rhythmic Mosaics</div>
+    <div class="tile">The Clock and the Train</div>
+    <div class="tile">The Witch Hunt</div>
+    <div class="tile">The Theory of Motion</div>
+    <div class="tile">I/O</div>
+    <div class="tile">Small Worlds</div>
+    <div class="tile">Flower of the Sun</div>
+    <div class="tile">Concentric Circles</div>
   </div>
   <p><a href="{{ '/music/' | relative_url }}">See the full catalogue of works &rarr;</a></p>
 </section>
 
-<div class="wrap"><hr class="rule"></div>
+<div class="wrap">
+  <hr class="rule">
+</div>
 
 <section class="wrap">
   <p class="eyebrow">Explore</p>
   <div class="card-grid">
-    <div class="card"><div class="card-body"><h3><a href="{{ '/about/' | relative_url }}">About</a></h3><p>Biography, press, and background.</p></div></div>
-    <div class="card"><div class="card-body"><h3><a href="{{ '/research/' | relative_url }}">Research</a></h3><p>Published papers on music information retrieval, live coding, and networked performance.</p></div></div>
-    <div class="card"><div class="card-body"><h3><a href="{{ '/software/' | relative_url }}">Software</a></h3><p>Open-source tools, instruments, and interactive systems.</p></div></div>
-    <div class="card"><div class="card-body"><h3><a href="{{ '/music/' | relative_url }}">Music</a></h3><p>The complete catalogue of compositions, by ensemble type.</p></div></div>
-    <div class="card"><div class="card-body"><h3><a href="{{ '/scores/' | relative_url }}">Scores</a></h3><p>Downloadable full scores.</p></div></div>
-    <div class="card"><div class="card-body"><h3><a href="{{ '/contact/' | relative_url }}">Contact</a></h3><p>Commissions, purchase orders, research, and lessons.</p></div></div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/about/' | relative_url }}">About</a></h3>
+        <p>Biography, press, and background.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/research/' | relative_url }}">Research</a></h3>
+        <p>Published papers on music information retrieval, live coding, and networked performance.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/software/' | relative_url }}">Software</a></h3>
+        <p>Open-source tools, instruments, and interactive systems.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/music/' | relative_url }}">Music</a></h3>
+        <p>The complete catalogue of compositions, by ensemble type.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/scores/' | relative_url }}">Scores</a></h3>
+        <p>Downloadable full scores.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3><a href="{{ '/contact/' | relative_url }}">Contact</a></h3>
+        <p>Commissions, purchase orders, research, and lessons.</p>
+      </div>
+    </div>
   </div>
 </section>

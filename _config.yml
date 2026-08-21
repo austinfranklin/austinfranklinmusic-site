@@ -15,29 +15,11 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
-collections:
-  software:
-    output: true
-    permalink: /software/:path/
-  music:
-    output: true
-    permalink: /music/:path/
-
 defaults:
   - scope:
       path: ""
     values:
       layout: "default"
-  - scope:
-      path: ""
-      type: "software"
-    values:
-      layout: "work"
-  - scope:
-      path: ""
-      type: "music"
-    values:
-      layout: "work"
 
 exclude:
   - README.md
